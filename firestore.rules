@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email != null && request.auth.token.email == 'maxpayne12311@gmail.com') ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ---------------------------------------------------------
+    // ARTIFACTS / PUBLIC DATA
+    // ---------------------------------------------------------
+    match /artifacts/{appId} {
+      
+      // Inventory
+      match /public/data/inventory/{productId} {
+        allow read: if true;
+        // Since there is no formalized auth system, allowing signed-in anonymous users to write,
+        // but normally this would be restricted to isAdmin().
+        allow create, update: if isAdmin() || isSignedIn();
+        allow delete: if isAdmin() || isSignedIn();
+      }
+
+      // Slides
+      match /public/data/slides/{slideId} {
+        allow read: if true;
+        allow create, update: if isAdmin() || isSignedIn();
+        allow delete: if isAdmin() || isSignedIn();
+      }
+
+      // User Cart
+      match /users/{userId}/cart/{cartItemId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+      // Orders
+      match /public/data/orders/{orderId} {
+        allow read: if isAdmin() || isSignedIn();
+        allow create: if isSignedIn();
+        allow update, delete: if isAdmin() || isSignedIn();
+      }
+      // Categories
+      match /public/data/categories/{categoryId} {
+        allow read: if true;
+        allow write: if isAdmin() || isSignedIn();
+      }
+    }
+}

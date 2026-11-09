@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A piece of jewelry.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "desc": { "type": "string" },
+        "category": { "type": "string" },
+        "inStock": { "type": "boolean" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "img": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "price", "category", "inStock"]
+    },
+    "Slide": {
+      "title": "Slide",
+      "description": "A hero slide for the homepage.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "desc": { "type": "string" },
+        "btnText": { "type": "string" },
+        "btnLink": { "type": "string" },
+        "img": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "img"]
+    },
+    "CartItem": {
+      "title": "CartItem",
+      "description": "An item in the user's cart.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "img": { "type": "string" }
+      },
+      "required": ["name", "price", "img"]
+    }
+  },
+  "firestore": {
+    "/artifacts/{appId}/public/data/inventory": {
+      "schema": { "$ref": "Product" },
+      "description": "The store inventory"
+    },
+    "/artifacts/{appId}/public/data/slides": {
+      "schema": { "$ref": "Slide" },
+      "description": "The slides for the hero section"
+    },
+    "/artifacts/{appId}/users/{userId}/cart": {
+      "schema": { "$ref": "CartItem" },
+      "description": "The user's shopping cart items"
+    }
+  }
+}
